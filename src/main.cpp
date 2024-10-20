@@ -12,6 +12,8 @@ pros::Motor hook (HOOK_PORT);
 pros::adi::DigitalOut intake_pneumatic_extend(INTAKE_EXTEND_PORT);  // Port A controls extension
 pros::adi::DigitalOut intake_pneumatic_retract(INTAKE_RETRACT_PORT); // Port B controls retraction
 
+pros::adi::DigitalOut clamp_pneumatic(CLAMP_PORT);  // Port A controls extension
+
 lemlib::Drivetrain drivetrain(&left_motors, // left motor group
                               &right_motors, // right motor group
                               TRACK_WIDTH, // 13 inch track width
@@ -79,7 +81,9 @@ lemlib::Chassis chassis(drivetrain,
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-
+int color = 0;
+int auton = 0;
+bool intake_extended = false;
 // initialize function. Runs on program startup
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
@@ -98,26 +102,6 @@ void initialize() {
 }
 
 
-
-
-
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -125,12 +109,33 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 
-/**
+/*
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void change_color() {
+    if (color == 0){
+        color += 1;
+        pros::lcd::print(4, "Color: blue");
+    } else if (color == 1){
+        color += 1;
+        pros::lcd::print(4, "AUTON");
+    } else if (color == 2){
+        color = 0;
+        pros::lcd::print(4, "Color: red");
+    }
+}
+void change_auton_goal() {
+    auton += 1;
+    pros::lcd::print(5, "Auton: Goal Side");
+}
+void change_auton_ring() {
+    auton = 0;
+    pros::lcd::print(5, "Auton: Ring Side");
+}
+void disabled() {
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -141,7 +146,11 @@ void disabled() {}
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+    pros::lcd::register_btn1_cb(change_color);
+    pros::lcd::register_btn0_cb(change_auton_goal);
+    pros::lcd::register_btn2_cb(change_auton_ring);
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -154,7 +163,41 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+ASSET(redRingPath1_txt);
+ASSET(redRingPath2_txt);
+ASSET(redRingPath3_txt);
+ASSET(redRingPath4_txt);
+ASSET(redRingPath5_txt);
+ASSET(redRingPath6_txt);
+void autonomous() {
+    if (color == 0 && auton == 0){
+        intake_extended = true;
+        intake_pneumatic_extend.set_value(true);
+        intake_pneumatic_retract.set_value(false);   //extend intake
+        chassis.setPose(0, 0, 0);         //set pose
+        chassis.follow(redRingPath1_txt, 15, 3000); //follow straight to middle 2 ring stack
+        chassis.waitUntil(25);                                         //wait until traveled 25in
+        intake.move_velocity(200);                                 //move intake
+        chassis.waitUntilDone();                                             //wait until first path complete
+        pros::delay(500);                                       //wait 500 miliseconds for ring to intake
+        chassis.follow(redRingPath2_txt, 15, 3000);  //start lining up for mogo
+        hook.move_velocity(100);                                    //start moving hook
+        pros::delay(500);                                       //wait 500ms
+        hook.move_velocity(0);                                      //stop intake and hook
+        intake.move_velocity(0);
+        chassis.waitUntilDone();                                              //wait until path followed
+        chassis.follow(redRingPath3_txt, 15, 3000, false); //go to goal
+        clamp_pneumatic.set_value(true);                                       //open mogo clamp
+        chassis.waitUntilDone();                                               //wait until reach mogo
+        clamp_pneumatic.set_value(false);                                      //close mogo clamp
+        chassis.follow(redRingPath4_txt, 15, 4000);   //go to 2 2 ring stacks in very center
+        hook.move_velocity(200);                                     //turn on intake/hook
+        intake.move_velocity(200);
+        chassis.follow(redRingPath5_txt, 15, 1000, false); //after intaking one ring, back up to get approach on second
+        chassis.follow(redRingPath6_txt, 15, 3000);   //go to other ring
+        clamp_pneumatic.set_value(true);                                      //release
+    }
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -175,7 +218,6 @@ void opcontrol() {
         // get left y and right y positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-		bool intake_extended = false;
 
         // move the robot
         chassis.tank(leftY, rightY);

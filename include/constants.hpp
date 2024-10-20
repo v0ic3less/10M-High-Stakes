@@ -15,6 +15,7 @@ const int IMU_PORT = 10;
 // Pneumatic ports
 const char INTAKE_EXTEND_PORT = 'A';
 const char INTAKE_RETRACT_PORT = 'B';
+const char CLAMP_PORT = 'C';
 
 // Drivetrain settings
 const double TRACK_WIDTH = 13; // in inches
