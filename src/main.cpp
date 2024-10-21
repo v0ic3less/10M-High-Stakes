@@ -223,7 +223,7 @@ void opcontrol() {
         chassis.tank(leftY, rightY);
 
 
-		if (controller.get_digital(DIGITAL_R1)) {
+		if (controller.get_digital_new_press(DIGITAL_R1)) {
 			intake.move_velocity(200); // This is 100 because it's a 100rpm motor
 			hook.move_velocity(200);
 		}
@@ -232,26 +232,28 @@ void opcontrol() {
 			hook.move_velocity(0);
 		}
 
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
 			if (intake_extended){
 				intake_extended = false;
 				intake_pneumatic_extend.set_value(false);
     			intake_pneumatic_retract.set_value(true);
+                pros::delay(100);
 
 			} else {
 				intake_extended = true;
 				intake_pneumatic_extend.set_value(true);
     			intake_pneumatic_retract.set_value(false);
+                pros::delay(100);
 			}
 		}
 
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
 			//change doinker state
 		}
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
 			//change segregation state
 		}
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
 			//change clamp state
 		}
 
