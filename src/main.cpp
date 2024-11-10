@@ -84,6 +84,8 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 int color = 0;
 int auton = 0;
 bool intake_extended = false;
+bool clamp_extended = false;
+bool intaking = false;
 // initialize function. Runs on program startup
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
@@ -224,13 +226,17 @@ void opcontrol() {
 
 
 		if (controller.get_digital_new_press(DIGITAL_R1)) {
-			intake.move_velocity(200); // This is 100 because it's a 100rpm motor
+            intaking = !intaking;
+			
+		}
+
+        if (intaking) {
+            intake.move_velocity(200); // This is 100 because it's a 100rpm motor
 			hook.move_velocity(200);
-		}
-		else {
-			intake.move_velocity(0);
+        } else {
+            intake.move_velocity(0); // This is 100 because it's a 100rpm motor
 			hook.move_velocity(0);
-		}
+        }
 
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
 			if (intake_extended){
@@ -253,8 +259,9 @@ void opcontrol() {
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
 			//change segregation state
 		}
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-			//change clamp state
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+			clamp_extended = !clamp_extended;
+            clamp_pneumatic.set_value(clamp_extended);
 		}
 
 

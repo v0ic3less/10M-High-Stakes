@@ -2,15 +2,15 @@
 #define CONSTANTS_HPP
 
 // Motor ports
-const int LEFT_MOTOR_FRONT = -20;
-const int LEFT_MOTOR_MIDDLE = -21;
-const int LEFT_MOTOR_BACK = -3;
-const int RIGHT_MOTOR_FRONT = 4;
-const int RIGHT_MOTOR_MIDDLE = 5;
-const int RIGHT_MOTOR_BACK = 6;
-const int INTAKE_PORT = 1;
-const int HOOK_PORT = -2;
-const int IMU_PORT = 10;
+const int LEFT_MOTOR_FRONT = -18;
+const int LEFT_MOTOR_MIDDLE = -20;
+const int LEFT_MOTOR_BACK = -11;
+const int RIGHT_MOTOR_FRONT = 17;
+const int RIGHT_MOTOR_MIDDLE = 14;
+const int RIGHT_MOTOR_BACK = 12;
+const int INTAKE_PORT = 6;
+const int HOOK_PORT = 13;
+const int IMU_PORT = 2;
 
 // Pneumatic ports
 const char INTAKE_EXTEND_PORT = 'A';
