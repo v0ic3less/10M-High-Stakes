@@ -14,6 +14,10 @@ pros::adi::DigitalOut intake_pneumatic_retract(INTAKE_RETRACT_PORT); // Port B c
 
 pros::adi::DigitalOut clamp_pneumatic(CLAMP_PORT);  // Port A controls extension
 
+pros::adi::DigitalOut lift_pneumatic(LIFT_PORT);
+
+pros::Distance distance_sensor(DISTANCE_PORT);
+
 lemlib::Drivetrain drivetrain(&left_motors, // left motor group
                               &right_motors, // right motor group
                               TRACK_WIDTH, // 13 inch track width
@@ -85,7 +89,9 @@ int color = 0;
 int auton = 0;
 bool intake_extended = false;
 bool clamp_extended = false;
+bool lift_extended = false;
 bool intaking = false;
+bool reversed = false;
 // initialize function. Runs on program startup
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
@@ -165,40 +171,44 @@ void competition_initialize() {
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-ASSET(redRingPath1_txt);
-ASSET(redRingPath2_txt);
-ASSET(redRingPath3_txt);
-ASSET(redRingPath4_txt);
-ASSET(redRingPath5_txt);
-ASSET(redRingPath6_txt);
+// ASSET(redRingPath1_txt);
+// ASSET(redRingPath2_txt);
+// ASSET(redRingPath3_txt);
+// ASSET(redRingPath4_txt);
+// ASSET(redRingPath5_txt);
+
+// ASSET(redRingPath6_txt);
+ASSET(blue_negative_corner_txt);
 void autonomous() {
-    if (color == 0 && auton == 0){
-        intake_extended = true;
-        intake_pneumatic_extend.set_value(true);
-        intake_pneumatic_retract.set_value(false);   //extend intake
-        chassis.setPose(0, 0, 0);         //set pose
-        chassis.follow(redRingPath1_txt, 15, 3000); //follow straight to middle 2 ring stack
-        chassis.waitUntil(25);                                         //wait until traveled 25in
-        intake.move_velocity(200);                                 //move intake
-        chassis.waitUntilDone();                                             //wait until first path complete
-        pros::delay(500);                                       //wait 500 miliseconds for ring to intake
-        chassis.follow(redRingPath2_txt, 15, 3000);  //start lining up for mogo
-        hook.move_velocity(100);                                    //start moving hook
-        pros::delay(500);                                       //wait 500ms
-        hook.move_velocity(0);                                      //stop intake and hook
-        intake.move_velocity(0);
-        chassis.waitUntilDone();                                              //wait until path followed
-        chassis.follow(redRingPath3_txt, 15, 3000, false); //go to goal
-        clamp_pneumatic.set_value(true);                                       //open mogo clamp
-        chassis.waitUntilDone();                                               //wait until reach mogo
-        clamp_pneumatic.set_value(false);                                      //close mogo clamp
-        chassis.follow(redRingPath4_txt, 15, 4000);   //go to 2 2 ring stacks in very center
-        hook.move_velocity(200);                                     //turn on intake/hook
-        intake.move_velocity(200);
-        chassis.follow(redRingPath5_txt, 15, 1000, false); //after intaking one ring, back up to get approach on second
-        chassis.follow(redRingPath6_txt, 15, 3000);   //go to other ring
-        clamp_pneumatic.set_value(true);                                      //release
-    }
+    // if (color == 0 && auton == 0){
+    //     intake_extended = true;
+    //     intake_pneumatic_extend.set_value(true);
+    //     intake_pneumatic_retract.set_value(false);   //extend intake
+    //     chassis.setPose(0, 0, 0);         //set pose
+    //     chassis.follow(redRingPath1_txt, 15, 3000); //follow straight to middle 2 ring stack
+    //     chassis.waitUntil(25);                                         //wait until traveled 25in
+    //     intake.move_velocity(200);                                 //move intake
+    //     chassis.waitUntilDone();                                             //wait until first path complete
+    //     pros::delay(500);                                       //wait 500 miliseconds for ring to intake
+    //     chassis.follow(redRingPath2_txt, 15, 3000);  //start lining up for mogo
+    //     hook.move_velocity(100);                                    //start moving hook
+    //     pros::delay(500);                                       //wait 500ms
+    //     hook.move_velocity(0);                                      //stop intake and hook
+    //     intake.move_velocity(0);
+    //     chassis.waitUntilDone();                                              //wait until path followed
+    //     chassis.follow(redRingPath3_txt, 15, 3000, false); //go to goal
+    //     clamp_pneumatic.set_value(true);                                       //open mogo clamp
+    //     chassis.waitUntilDone();                                               //wait until reach mogo
+    //     clamp_pneumatic.set_value(false);                                      //close mogo clamp
+    //     chassis.follow(redRingPath4_txt, 15, 4000);   //go to 2 2 ring stacks in very center
+    //     hook.move_velocity(200);                                     //turn on intake/hook
+    //     intake.move_velocity(200);
+    //     chassis.follow(redRingPath5_txt, 15, 1000, false); //after intaking one ring, back up to get approach on second
+    //     chassis.follow(redRingPath6_txt, 15, 3000);   //go to other ring
+    //     clamp_pneumatic.set_value(true);                                      //release
+    // }
+    chassis.setPose(0, 0, 0);
+    chassis.follow(blue_negative_corner_txt, 15, 15000);
 }
 
 /**
@@ -219,20 +229,34 @@ void opcontrol() {
     while (true) {
         // get left y and right y positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        printf("Distance: %d mm\n", distance_sensor.get());
 
         // move the robot
-        chassis.tank(leftY, rightY);
+        chassis.arcade(leftY, rightX);
 
 
 		if (controller.get_digital_new_press(DIGITAL_R1)) {
             intaking = !intaking;
-			
 		}
 
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+            intaking = true;
+            reversed = true;
+            intake.move_velocity(0);
+            hook.move_velocity(-200);
+        } else {
+            reversed = false;
+        }
+
         if (intaking) {
-            intake.move_velocity(200); // This is 100 because it's a 100rpm motor
-			hook.move_velocity(200);
+            if (!reversed){
+                intake.move_velocity(200); // This is 100 because it's a 100rpm motor
+                hook.move_velocity(200);
+            } else {
+                intake.move_velocity(0);
+                hook.move_velocity(-200);
+            }
         } else {
             intake.move_velocity(0); // This is 100 because it's a 100rpm motor
 			hook.move_velocity(0);
@@ -257,7 +281,9 @@ void opcontrol() {
 			//change doinker state
 		}
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-			//change segregation state
+			//change lift 
+            lift_extended = !lift_extended;
+            lift_pneumatic.set_value(lift_extended);
 		}
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			clamp_extended = !clamp_extended;

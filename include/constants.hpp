@@ -11,12 +11,13 @@ const int RIGHT_MOTOR_BACK = 12;
 const int INTAKE_PORT = 6;
 const int HOOK_PORT = 13;
 const int IMU_PORT = 2;
+const int DISTANCE_PORT = 9;
 
 // Pneumatic ports
 const char INTAKE_EXTEND_PORT = 'A';
 const char INTAKE_RETRACT_PORT = 'B';
 const char CLAMP_PORT = 'C';
-
+const char LIFT_PORT = 'D';
 // Drivetrain settings
 const double TRACK_WIDTH = 13; // in inches
 const double DRIVETRAIN_RPM = 360;
