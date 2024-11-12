@@ -24,15 +24,15 @@ const double DRIVETRAIN_RPM = 360;
 const double HORIZONTAL_DRIFT = 2;
 
 // Lateral PID Constants
-const double LATERAL_KP = 10;
+const double LATERAL_KP = 2;
 const double LATERAL_KI = 0;
-const double LATERAL_KD = 3;
+const double LATERAL_KD = 10;
 const double LATERAL_ANTI_WINDUP = 3;
 const double LATERAL_SMALL_ERROR_RANGE = 1; // in inches
 const int LATERAL_SMALL_ERROR_TIMEOUT = 100; // in milliseconds
 const double LATERAL_LARGE_ERROR_RANGE = 3; // in inches
 const int LATERAL_LARGE_ERROR_TIMEOUT = 500; // in milliseconds
-const double LATERAL_MAX_ACCEL = 20;
+const double LATERAL_MAX_ACCEL = 0;
 
 // Angular PID Constants
 const double ANGULAR_KP = 2;

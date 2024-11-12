@@ -91,11 +91,24 @@ bool intake_extended = false;
 bool clamp_extended = false;
 bool lift_extended = false;
 bool intaking = false;
+int leftY_offset = 0;
+int rightX_offset = 0;
 bool reversed = false;
+bool stopWhenRingDetected = false;
+bool ringDetected = false;
 // initialize function. Runs on program startup
 void initialize() {
+    
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
+    // Calibrate joystick drift
+    leftY_offset = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    rightX_offset = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+
+    // Print offsets to confirm calibration
+    pros::lcd::print(7, "Left Y Offset: %d", leftY_offset);
+    pros::lcd::print(8, "Right X Offset: %d", rightX_offset);
+
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
@@ -228,18 +241,46 @@ void opcontrol() {
     // loop forever
     while (true) {
         // get left y and right y positions
-        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        printf("Distance: %d mm\n", distance_sensor.get());
+        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) - leftY_offset;
+        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) - rightX_offset;
 
-        // move the robot
+        //print distance
+        pros::lcd::print(4, "Distance %f", distance_sensor.get_distance()); 
+
+        //get distance value and get first 18 digits
+        long long distance = distance_sensor.get_distance();
+        std::string numStr = std::to_string(distance);
+        std::string first18Digits = numStr.substr(0, 18);
+        long long first18AsInt = std::stoll(first18Digits);
+
+        // Compare and print on the LCD
+        if (first18AsInt < 40) {
+            pros::lcd::print(5, "Here %lld", first18AsInt);
+            ringDetected = true;
+        } else {
+            pros::lcd::print(5, "There %lld", first18AsInt);
+            ringDetected = false;
+        }
+
+        // move the robot arcade
         chassis.arcade(leftY, rightX);
 
+        //if ring in front and ring detection toggled on, stop hook
+        if (ringDetected && stopWhenRingDetected) {
+            pros::delay(120);
+            hook.move_velocity(-100);
+            pros::delay(500);
+            hook.move_velocity(0);
+            intaking = false;
+            reversed = true;
+        }
 
+        //if r1 pressed, toggle if intaking or not
 		if (controller.get_digital_new_press(DIGITAL_R1)) {
             intaking = !intaking;
 		}
 
+        //if r2 pressed, reverse intake
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             intaking = true;
             reversed = true;
@@ -249,10 +290,14 @@ void opcontrol() {
             reversed = false;
         }
 
+        //if intaking, intake. if intaking and reversed, stop intake but reverse chain
         if (intaking) {
-            if (!reversed){
-                intake.move_velocity(200); // This is 100 because it's a 100rpm motor
+            if (!reversed && !stopWhenRingDetected){
+                intake.move_velocity(400); // This is 100 because it's a 100rpm motor
                 hook.move_velocity(200);
+            } else if (stopWhenRingDetected){
+                intake.move_velocity(400);
+                hook.move_velocity(100);
             } else {
                 intake.move_velocity(0);
                 hook.move_velocity(-200);
@@ -262,6 +307,7 @@ void opcontrol() {
 			hook.move_velocity(0);
         }
 
+        //if B pressed, toggle active intake
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
 			if (intake_extended){
 				intake_extended = false;
@@ -277,14 +323,22 @@ void opcontrol() {
 			}
 		}
 
+        //toggle ring detection
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			//change doinker state
+			stopWhenRingDetected = !stopWhenRingDetected;
+            if (stopWhenRingDetected){
+                controller.print(1, 1, "Ring Detection");
+            } else {
+                controller.clear();
+            }
 		}
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
 			//change lift 
             lift_extended = !lift_extended;
             lift_pneumatic.set_value(lift_extended);
 		}
+
+        // if L1 pressed, toggle clamp
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			clamp_extended = !clamp_extended;
             clamp_pneumatic.set_value(clamp_extended);
