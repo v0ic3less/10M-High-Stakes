@@ -27,15 +27,15 @@ const double HORIZONTAL_DRIFT = 2;
 const double LATERAL_KP = 2;
 const double LATERAL_KI = 0;
 const double LATERAL_KD = 10;
-const double LATERAL_ANTI_WINDUP = 3;
-const double LATERAL_SMALL_ERROR_RANGE = 1; // in inches
-const int LATERAL_SMALL_ERROR_TIMEOUT = 100; // in milliseconds
-const double LATERAL_LARGE_ERROR_RANGE = 3; // in inches
-const int LATERAL_LARGE_ERROR_TIMEOUT = 500; // in milliseconds
+const double LATERAL_ANTI_WINDUP = 0;
+const double LATERAL_SMALL_ERROR_RANGE = 0; // in inches
+const int LATERAL_SMALL_ERROR_TIMEOUT = 0; // in milliseconds
+const double LATERAL_LARGE_ERROR_RANGE = 0; // in inches
+const int LATERAL_LARGE_ERROR_TIMEOUT = 0; // in milliseconds
 const double LATERAL_MAX_ACCEL = 0;
 
 // Angular PID Constants
-const double ANGULAR_KP = 2;
+const double ANGULAR_KP = 3;
 const double ANGULAR_KI = 0;
 const double ANGULAR_KD = 10;
 const double ANGULAR_ANTI_WINDUP = 3;

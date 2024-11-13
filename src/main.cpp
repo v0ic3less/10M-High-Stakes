@@ -220,8 +220,71 @@ void autonomous() {
     //     chassis.follow(redRingPath6_txt, 15, 3000);   //go to other ring
     //     clamp_pneumatic.set_value(true);                                      //release
     // }
+
+
+    // chassis.setPose(0, 0, 0);
+    // chassis.follow(blue_negative_corner_txt, 15, 15000);
+
+
+    //pid tuning
+    // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
-    chassis.follow(blue_negative_corner_txt, 15, 15000);
+    // turn to face heading 90 with a very long timeout
+
+
+
+    //start code
+
+
+    // left_motors.move_velocity(-300);
+    // right_motors.move_velocity(-300);
+    // pros::delay(750);
+    // left_motors.move_velocity(0);
+    // right_motors.move_velocity(0);
+    // pros::delay(200);
+
+    // chassis.turnToHeading(-65, 200);
+    // intake_pneumatic_extend.set_value(true);
+    // intake_pneumatic_retract.set_value(false);
+    // pros::delay(280);
+
+    // left_motors.move_velocity(170);
+    // right_motors.move_velocity(170);
+    // intake.move_velocity(400);
+    // pros::delay(700);
+    //end code
+    // intake_pneumatic_extend.set_value(false);
+    // intake_pneumatic_retract.set_value(true);
+    //start code
+    // left_motors.move_velocity(0);
+    // right_motors.move_velocity(0);
+    // pros::delay(500);
+    // intake.move_velocity(0);
+    // chassis.turnToHeading(-150, 200);
+    // pros::delay(210);
+    // intake.move_velocity(400);
+    // pros::delay(200);
+    // intake.move_velocity(0);
+    // right_motors.move_velocity(-170);
+    // left_motors.move_velocity(-170);
+    // pros::delay(1100);
+    // right_motors.move_velocity(0);
+    // left_motors.move_velocity(0);
+
+
+    //end code
+
+
+    // left_motors.move_velocity(-400);
+    // right_motors.move_velocity(-400);
+    // intake.move_velocity(400);
+    // hook.move_velocity(400);
+    // pros::delay(800);
+    // right_motors.move_voltage(0);
+    // left_motors.move_voltage(0);
+    // hook.move_voltage(0);
+    // intake.move_voltage(0);
+    //chassis.moveToPoint(0, -10, 1000, {.forwards = false});
 }
 
 /**
@@ -267,7 +330,9 @@ void opcontrol() {
 
         //if ring in front and ring detection toggled on, stop hook
         if (ringDetected && stopWhenRingDetected) {
-            pros::delay(120);
+            pros::delay(30);
+            intake.move_velocity(0);
+            pros::delay(90);
             hook.move_velocity(-100);
             pros::delay(500);
             hook.move_velocity(0);
@@ -299,8 +364,8 @@ void opcontrol() {
                 intake.move_velocity(400);
                 hook.move_velocity(100);
             } else {
-                intake.move_velocity(0);
-                hook.move_velocity(-200);
+                intake.move_velocity(-400);
+                hook.move_velocity(-80);
             }
         } else {
             intake.move_velocity(0); // This is 100 because it's a 100rpm motor
