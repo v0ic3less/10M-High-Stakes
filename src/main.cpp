@@ -229,6 +229,11 @@ void autonomous() {
     //pid tuning
     // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
+    left_motors.move_velocity(-400);
+    right_motors.move_velocity(-400);
+    pros::delay(500);
+    left_motors.move_velocity(0);
+    right_motors.move_velocity(0);
     // turn to face heading 90 with a very long timeout
 
 
@@ -330,7 +335,7 @@ void opcontrol() {
 
         //if ring in front and ring detection toggled on, stop hook
         if (ringDetected && stopWhenRingDetected) {
-            pros::delay(30);
+            pros::delay(35);
             intake.move_velocity(0);
             pros::delay(90);
             hook.move_velocity(-100);
@@ -338,6 +343,8 @@ void opcontrol() {
             hook.move_velocity(0);
             intaking = false;
             reversed = true;
+            stopWhenRingDetected = false;
+            controller.clear();
         }
 
         //if r1 pressed, toggle if intaking or not
