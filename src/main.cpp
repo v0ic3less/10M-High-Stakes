@@ -194,6 +194,11 @@ void competition_initialize() {
 
 // ASSET(redRingPath6_txt);
 ASSET(blue_negative_corner_txt);
+ASSET(auton_negative_step_1_txt);
+ASSET(auton_negative_step_2_txt);
+ASSET(auton_negative_step_3_txt);
+ASSET(auton_negative_step_4_txt);
+ASSET(auton_negative_step_5_txt);
 void autonomous() {
     // if (color == 0 && auton == 0){
     //     intake_extended = true;
@@ -231,11 +236,56 @@ void autonomous() {
     //pid tuning
     // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
-    left_motors.move_velocity(-400);
-    right_motors.move_velocity(-400);
+    //chassis.turnToHeading(90, 100000);
+    chassis.moveToPoint(0, -33, 2000, {.forwards = false}, false);
+    //chassis.turnToPoint(-30, 10, 700);
+    intake_pneumatic_extend.set_value(true);
+    intake_pneumatic_retract.set_value(false);
+    intake.move_velocity(90);
+    chassis.moveToPoint(-8, -15, 2000, {}, false);
+    intake.brake();
+    //chassis.turnToHeading(-100, 1000);
+    intake_pneumatic_extend.set_value(false);
+    intake_pneumatic_retract.set_value(true);
+    chassis.moveToPoint(-15, -16.15, 2000,{}, false);
+    chassis.moveToPoint(11, -16.15, 2000,{.forwards = false, .maxSpeed=200}, false);
+    //right_motors.move_relative(-400, 100);
+    //intake.move_velocity(-30);
+    pros::delay(250);
+    intake.brake();
+    pros::delay(250);
+    //right_motors.move_velocity(0);
+    // right_motors.move_velocity(-5);
+    // left_motors.move_velocity(-5);
     pros::delay(500);
-    left_motors.move_velocity(0);
-    right_motors.move_velocity(0);
+    hook.move_velocity(400);
+    intake.move_velocity(400);                                 
+    pros::delay(1000);
+    intake.brake();
+    pros::delay(400);
+    hook.brake();
+    right_motors.brake();
+    left_motors.brake();
+    chassis.moveToPoint(-10, -16.15, 2000,{}, false);
+    chassis.moveToPoint(-30, 7, 4000, {.forwards = false}, false);
+    clamp_pneumatic.set_value(true);
+
+    // chassis.follow(auton_negative_step_1_txt, 15, 4000);
+    // chassis.follow(auton_negative_step_2_txt, 15, 4000);
+    // chassis.follow(auton_negative_step_3_txt, 15, 4000);
+    // chassis.follow(auton_negative_step_4_txt, 15, 4000);
+    // chassis.follow(auton_negative_step_5_txt, 15, 4000);
+
+    // left_motors.move_velocity(-400);
+    // right_motors.move_velocity(-400);
+    // pros::delay(500);
+    // left_motors.move_velocity(0);
+    // right_motors.move_velocity(0);
+
+
+
+
+
     // turn to face heading 90 with a very long timeout
 
 
