@@ -2,6 +2,7 @@
 #include "lemlib/api.hpp"
 #include "pros/misc.h"
 #include "constants.hpp"
+#include "pros/motors.h"
 
 
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT,LEFT_MOTOR_MIDDLE,LEFT_MOTOR_BACK}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 AND reversed
@@ -109,6 +110,7 @@ void initialize() {
     pros::lcd::print(7, "Left Y Offset: %d", leftY_offset);
     pros::lcd::print(8, "Right X Offset: %d", rightX_offset);
 
+    intake.set_brake_mode (pros::E_MOTOR_BRAKE_HOLD);
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
@@ -332,7 +334,7 @@ void opcontrol() {
 
         // move the robot arcade
         chassis.arcade(leftY, rightX);
-
+        
         //if ring in front and ring detection toggled on, stop hook
         if (ringDetected && stopWhenRingDetected) {
             pros::delay(35);
@@ -343,7 +345,7 @@ void opcontrol() {
             hook.move_velocity(0);
             intaking = false;
             reversed = true;
-            stopWhenRingDetected = false;
+            //stopWhenRingDetected = false;
             controller.clear();
         }
 
