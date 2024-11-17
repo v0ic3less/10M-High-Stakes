@@ -243,13 +243,8 @@ void autonomous() {
     // pros::delay(500);
     // clamp_pneumatic.set_value(false);
     // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(0, 10, 500);
-    // chassis.moveToPoint(0, 0, 500, {.forwards = false});
-    // chassis.moveToPoint(0, 20, 1000);
-    // chassis.moveToPoint(50, 0, 100, {}, false);
-    // chassis.moveToPoint(-35, 50, 5000, {.forwards=false, .minSpeed=20}, false);
-    // clamp_pneumatic.set_value(true);
-    // chassis.moveToPoint(-40, 100, 5000, {.forwards=false}, false);
+    // chassis.moveToPoint(0, 10, 1000);
+    // chassis.moveToPoint(0, 0, 1000, {.forwards = false});
 
 }
 
