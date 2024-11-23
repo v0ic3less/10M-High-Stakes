@@ -116,13 +116,11 @@ void initialize() {
 
     intake.set_brake_mode (pros::E_MOTOR_BRAKE_HOLD);
 
-    //auton_to_run = 0; //BLUE NEGATIVE 2 RING 1 STAKE
-    //auton_to_run = 1; //BLUE POSITIVE 3 RING 1 STAKE
-    auton_to_run = 2; //BLUE POSITIVE 4 RING 2 STAKE
-    //auton_to_run = 3; //RED NEGATIVE 2 RING 1 STAKE
-    //auton_to_run = 4; //RED POSITIVE 3 RING 1 STAKE
-    //auton_to_run = 5; //RED POSITIVE 4 RING 2 STAKE
-    //auton_to_run = 6; //skills
+    //auton_to_run = 0; //BLUE NEGATIVE 2 RING 1 STAKE             OR     RED POSITIVE 2 RING 1 STAKE   (DONT RUN THIS)
+    //auton_to_run = 1; //BLUE POSITIVE 3 RING 1 STAKE             OR     RED NEGATIVE 3 RING 1 STAKE
+    auton_to_run = 2;   //BLUE POSITIVE 3 RING 2 STAKE WIN POINT   OR     RED NEGATIVE 3 RING 2 STAKE WP
+    //auton_to_run = 3; //BLUE NEGATIVE 3 RING 1 STAKE             OR     RED POSITIVE 3 RING 1 STAKE
+    //auton_to_run = 6; //SKILLS
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
