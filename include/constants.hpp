@@ -18,6 +18,7 @@ const char INTAKE_EXTEND_PORT = 'A';
 const char INTAKE_RETRACT_PORT = 'B';
 const char CLAMP_PORT = 'C';
 const char LIFT_PORT = 'D';
+const char DIDDY_PORT = 'E';
 // Drivetrain settings
 const double TRACK_WIDTH = 13; // in inches
 const double DRIVETRAIN_RPM = 360;
