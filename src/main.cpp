@@ -122,6 +122,7 @@ void initialize() {
     //auton_to_run = 3; //RED NEGATIVE 2 RING 1 STAKE
     //auton_to_run = 4; //RED POSITIVE 3 RING 1 STAKE
     //auton_to_run = 5; //RED POSITIVE 4 RING 2 STAKE
+    //auton_to_run = 6; //skills
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
@@ -223,7 +224,7 @@ void autonomous() {
         chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
         //chassis.turnToHeading(60, 1000, {}, false);
-        chassis.moveToPoint(20, -20, 1000);
+        chassis.moveToPoint(20, -20, 1300);
         pros::delay(500);
         intake.move_velocity(400);
         hook.move_velocity(400);
@@ -231,16 +232,19 @@ void autonomous() {
         chassis.setPose(0,0,0);
         intake_pneumatic_extend.set_value(true);
         intake_pneumatic_retract.set_value(false);
-        chassis.moveToPoint(-28, -27, 4400, {.maxSpeed=100}, false);
+        chassis.moveToPoint(-29, -28, 4400, {.maxSpeed=100}, false);
+        pros::delay(1000);
+        chassis.setPose(0,0,0);
         // intake_pneumatic_extend.set_value(false);
         // intake_pneumatic_retract.set_value(true);
-        pros::delay(1000);
-        intake.brake();
-        hook.brake();
-        chassis.setPose(0,0,0);
         chassis.turnToHeading(-100, 1000, {}, false);
         chassis.setPose(0,0,0);
         chassis.moveToPoint(0, 20, 1000);
+        hook.brake();
+        intake.brake();
+        clamp_pneumatic.set_value(false);
+        intake_pneumatic_extend.set_value(false);
+        intake_pneumatic_retract.set_value(true);
         // right_motors.move_velocity(600);
         // left_motors.move_velocity(600);
         // pros::delay(1500);
@@ -251,58 +255,80 @@ void autonomous() {
         // chassis.setPose(0, 0, 0);
         chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
-        hook.move_velocity(400);
-        pros::delay(200);
         //chassis.turnToHeading(60, 1000, {}, false);
-        chassis.moveToPoint(-40, -29, 1200, {.minSpeed=72, .earlyExitRange=8}, false);
-        chassis.moveToPoint(-50, -50, 1200, {.minSpeed=72, .earlyExitRange=8}, false);
-        chassis.moveToPoint(-55, -60, 1400, {.minSpeed=72});
+        chassis.moveToPoint(20, -20, 1300);
+        pros::delay(500);
         intake.move_velocity(400);
         hook.move_velocity(400);
-        pros::delay(1000);
-        chassis.setPose(0,0,60);
-        chassis.moveToPoint(-15, -30, 1000, {.forwards=false}, false);
+        pros::delay(2500);
+        intake.brake();
+        hook.brake();
         clamp_pneumatic.set_value(false);
         chassis.setPose(0,0,0);
-
-        chassis.turnToHeading(-30, 500, {}, false);
-        chassis.moveToPoint(0, 10, 500, {.minSpeed=72,.earlyExitRange=3},false);
-        chassis.moveToPoint(-25, 30, 1500, {.forwards=false}, false);
+        chassis.moveToPoint(-35, -48, 2400, {.minSpeed=72, .earlyExitRange=2}, false);
+        //chassis.moveToPoint(0, -58, 1400, {.forwards=false}, false);
+        chassis.moveToPoint(2, -55, 1400, {.forwards=false, .minSpeed=20}, false);
+        pros::delay(200);
         clamp_pneumatic.set_value(true);
+        chassis.moveToPoint(-20, -52, 1000, {.minSpeed=20, .earlyExitRange=2}, false);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        chassis.moveToPoint(-20, -90, 1000, {.minSpeed=20}, false);
+        pros::delay(2000);
+        chassis.turnToHeading(20, 1000, {}, false);
+        right_motors.move_velocity(400);
+        left_motors.move_velocity(400);
+        pros::delay(1000);
+        clamp_pneumatic.set_value(false);
+        right_motors.brake();
+        left_motors.brake();
+    } else if (auton_to_run == 3) {
+        // chassis.turnToHeading(45, 1000);
+        // chassis.setPose(0, 0, 0);
+        chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
+        clamp_pneumatic.set_value(true);
+        //chassis.turnToHeading(60, 1000, {}, false);
+        chassis.moveToPoint(-20, -20, 1300);
+        pros::delay(500);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        pros::delay(3000);
+        chassis.setPose(0,0,0);
+        intake_pneumatic_extend.set_value(true);
+        intake_pneumatic_retract.set_value(false);
+        chassis.moveToPoint(29, -28, 4400, {.maxSpeed=100}, false);
+        pros::delay(1000);
+        chassis.setPose(0,0,0);
         // intake_pneumatic_extend.set_value(false);
         // intake_pneumatic_retract.set_value(true);
-        // pros::delay(1000);
-        // intake.brake();
-        // hook.brake();
-        // chassis.setPose(0,0,0);
-        // chassis.turnToHeading(-100, 1000, {}, false);
-        // chassis.setPose(0,0,0);
-        // chassis.moveToPoint(0, 20, 1000);
-        // right_motors.move_velocity(600);
-        // left_motors.move_velocity(600);
-        // pros::delay(1500);
-        // right_motors.brake();
-        // left_motors.brake();
+        chassis.turnToHeading(-100, 1000, {}, false);
+        chassis.setPose(0,0,0);
+        chassis.moveToPoint(0, 20, 1000);
+        hook.brake();
+        intake.brake();
+        clamp_pneumatic.set_value(false);
+        intake_pneumatic_extend.set_value(false);
+        intake_pneumatic_retract.set_value(true);
     }
 
     
 
-    //skills
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(0, -5, 500, {.forwards=false, .minSpeed=40}, false);
-    // clamp_pneumatic.set_value(true);
-    // pros::delay(500);
-    // hook.move_velocity(400);
-    // pros::delay(1000);
-    // hook.move_velocity(0);
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(-80, 0, 2000, {.forwards=false}, false);
-    // pros::delay(500);
-    // clamp_pneumatic.set_value(false);
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(0, 10, 1000);
-    // chassis.moveToPoint(0, 0, 1000, {.forwards = false});
-
+    else if (auton_to_run == 6){
+        chassis.setPose(0, 0, 0);
+        chassis.moveToPoint(0, -5, 500, {.forwards=false, .minSpeed=40}, false);
+        clamp_pneumatic.set_value(true);
+        pros::delay(500);
+        hook.move_velocity(400);
+        pros::delay(1000);
+        hook.move_velocity(0);
+        chassis.setPose(0, 0, 0);
+        chassis.moveToPoint(-80, 0, 2000, {.forwards=false}, false);
+        pros::delay(500);
+        clamp_pneumatic.set_value(false);
+        chassis.setPose(0, 0, 0);
+        chassis.moveToPoint(0, 10, 1000);
+        chassis.moveToPoint(0, 0, 1000, {.forwards = false});
+    }
 }
 
 /**
@@ -320,6 +346,10 @@ void autonomous() {
  */
 void opcontrol() {
     // loop forever
+    if (auton_to_run == 2){
+        clamp_pneumatic.set_value(true);
+        clamp_extended = true;
+    }
     while (true) {
         // get left y and right y positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) - leftY_offset;
