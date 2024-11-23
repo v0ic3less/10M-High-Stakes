@@ -183,12 +183,6 @@ void competition_initialize() {
 // ASSET(redRingPath5_txt);
 
 // ASSET(redRingPath6_txt);
-ASSET(blue_negative_corner_txt);
-ASSET(auton_negative_step_1_txt);
-ASSET(auton_negative_step_2_txt);
-ASSET(auton_negative_step_3_txt);
-ASSET(auton_negative_step_4_txt);
-ASSET(auton_negative_step_5_txt);
 void autonomous() {
     chassis.setPose(0, 0, 0);
     if (auton_to_run == 0){
@@ -263,9 +257,11 @@ void autonomous() {
         pros::delay(2500);
         intake.brake();
         hook.brake();
-        clamp_pneumatic.set_value(false);
         chassis.setPose(0,0,0);
-        chassis.moveToPoint(-35, -48, 2400, {.minSpeed=72, .earlyExitRange=2}, false);
+        chassis.moveToPoint(-35, -48, 2400, {.minSpeed=72, .earlyExitRange=2});
+        pros::delay(1000);
+        clamp_pneumatic.set_value(false);
+        pros::delay(1400);
         //chassis.moveToPoint(0, -58, 1400, {.forwards=false}, false);
         chassis.moveToPoint(2, -55, 1400, {.forwards=false, .minSpeed=20}, false);
         pros::delay(200);
