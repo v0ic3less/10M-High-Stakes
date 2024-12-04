@@ -1,8 +1,12 @@
 #include "main.h"
 #include "lemlib/api.hpp"
+#include <iostream>
+#include <thread>
+#include <chrono>
 #include "pros/misc.h"
 #include "constants.hpp"
 #include "pros/motors.h"
+#include "pros/rtos.hpp"
 
 
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT,LEFT_MOTOR_MIDDLE,LEFT_MOTOR_BACK}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 AND reversed
@@ -96,11 +100,13 @@ bool lift_extended = false;
 bool diddy_extended = false;
 int auton_to_run = 1;
 bool intaking = false;
+bool hookRev = false;
 int leftY_offset = 0;
 int rightX_offset = 0;
 bool reversed = false;
 bool stopWhenRingDetected = false;
 bool ringDetected = false;
+auto start = std::chrono::high_resolution_clock::now();
 // initialize function. Runs on program startup
 void initialize() {
     
@@ -116,11 +122,22 @@ void initialize() {
 
     intake.set_brake_mode (pros::E_MOTOR_BRAKE_HOLD);
 
-    //auton_to_run = 0; //BLUE NEGATIVE 2 RING 1 STAKE             OR     RED POSITIVE 2 RING 1 STAKE   (DONT RUN THIS)
-    //auton_to_run = 1; //BLUE POSITIVE 3 RING 1 STAKE             OR     RED NEGATIVE 3 RING 1 STAKE
-    auton_to_run = 2;   //BLUE POSITIVE 3 RING 2 STAKE WIN POINT   OR     RED NEGATIVE 3 RING 2 STAKE WP
-    //auton_to_run = 3; //BLUE NEGATIVE 3 RING 1 STAKE             OR     RED POSITIVE 3 RING 1 STAKE
-    //auton_to_run = 6; //SKILLS
+    //auton_to_run = 1; //BLUE GOAL SIDE 3 RING
+    //auton_to_run = 3; //BLUE RING SIDE 3 RING
+    //auton_to_run = 4; //BLUE RING SIDE 2 RING
+    auton_to_run = 5; //BLUE RING SIDE 5 RING (into negative)
+
+
+    //auton_to_run = 1; //RED RING SIDE 3 RING
+    //auton_to_run = 3; //RED GOAL SIDE 3 RING
+    //auton_to_run = 4; //RED GOAL SIDE 2 RING
+    //auton_to_run = 7; //RED RING SIDE 5 RING (into negative)
+
+    //auton_to_run = 2; //FULL FIELD SOLO WP (3 ring 2 mogo)
+    //auton_to_run = 99999; //nothing
+
+    //auton_to_run = 20; //SKILLS
+
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
@@ -183,39 +200,9 @@ void competition_initialize() {
 // ASSET(redRingPath6_txt);
 void autonomous() {
     chassis.setPose(0, 0, 0);
-    if (auton_to_run == 0){
-        chassis.moveToPoint(0, -33, 2000, {.forwards = false}, false);
-        intake_pneumatic_extend.set_value(true);
-        intake_pneumatic_retract.set_value(false);
-        intake.move_velocity(90);
-        chassis.moveToPoint(-8, -16.2, 1500, {}, false);
-        chassis.turnToHeading(180, 2000, {.maxSpeed = 60}, false);
-        intake.brake();
-        intake_pneumatic_extend.set_value(false);
-        intake_pneumatic_retract.set_value(true);
-        chassis.moveToPoint(-15, -2, 2000,{.maxSpeed=100}, false);
-        chassis.moveToPoint(-45, 9, 1800, {.forwards = false, .minSpeed=40}, false);
-        clamp_pneumatic.set_value(true);
-        pros::delay(500);
-        intake.move_velocity(400);
-        hook.move_velocity(400);
-        pros::delay(2000);
-        intake.brake();
-        hook.brake();
-        // clamp_pneumatic.set_value(false);
-        pros::delay(200);
-        chassis.turnToHeading(200, 1000, {}, false);
-        left_motors.move_velocity(100);
-        right_motors.move_velocity(100);
-        pros::delay(500);
-        left_motors.brake();
-        right_motors.brake();
-    } else if (auton_to_run == 1){
-        // chassis.turnToHeading(45, 1000);
-        // chassis.setPose(0, 0, 0);
+    if (auton_to_run == 1){
         chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
-        //chassis.turnToHeading(60, 1000, {}, false);
         chassis.moveToPoint(20, -20, 1300);
         pros::delay(500);
         intake.move_velocity(400);
@@ -227,8 +214,6 @@ void autonomous() {
         chassis.moveToPoint(-29, -28, 4400, {.maxSpeed=100}, false);
         pros::delay(1000);
         chassis.setPose(0,0,0);
-        // intake_pneumatic_extend.set_value(false);
-        // intake_pneumatic_retract.set_value(true);
         chassis.turnToHeading(-100, 1000, {}, false);
         chassis.setPose(0,0,0);
         chassis.moveToPoint(0, 20, 1000);
@@ -237,17 +222,9 @@ void autonomous() {
         clamp_pneumatic.set_value(false);
         intake_pneumatic_extend.set_value(false);
         intake_pneumatic_retract.set_value(true);
-        // right_motors.move_velocity(600);
-        // left_motors.move_velocity(600);
-        // pros::delay(1500);
-        // right_motors.brake();
-        // left_motors.brake();
     } else if (auton_to_run == 2){
-        // chassis.turnToHeading(45, 1000);
-        // chassis.setPose(0, 0, 0);
         chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
-        //chassis.turnToHeading(60, 1000, {}, false);
         chassis.moveToPoint(20, -20, 1300);
         pros::delay(500);
         intake.move_velocity(400);
@@ -260,7 +237,6 @@ void autonomous() {
         pros::delay(1000);
         clamp_pneumatic.set_value(false);
         pros::delay(1400);
-        //chassis.moveToPoint(0, -58, 1400, {.forwards=false}, false);
         chassis.moveToPoint(2, -55, 1400, {.forwards=false, .minSpeed=20}, false);
         pros::delay(200);
         clamp_pneumatic.set_value(true);
@@ -277,11 +253,8 @@ void autonomous() {
         right_motors.brake();
         left_motors.brake();
     } else if (auton_to_run == 3) {
-        // chassis.turnToHeading(45, 1000);
-        // chassis.setPose(0, 0, 0);
         chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
-        //chassis.turnToHeading(60, 1000, {}, false);
         chassis.moveToPoint(-20, -20, 1300);
         pros::delay(500);
         intake.move_velocity(400);
@@ -293,8 +266,6 @@ void autonomous() {
         chassis.moveToPoint(29, -28, 4400, {.maxSpeed=100}, false);
         pros::delay(1000);
         chassis.setPose(0,0,0);
-        // intake_pneumatic_extend.set_value(false);
-        // intake_pneumatic_retract.set_value(true);
         chassis.turnToHeading(-100, 1000, {}, false);
         chassis.setPose(0,0,0);
         chassis.moveToPoint(0, 20, 1000);
@@ -303,11 +274,83 @@ void autonomous() {
         clamp_pneumatic.set_value(false);
         intake_pneumatic_extend.set_value(false);
         intake_pneumatic_retract.set_value(true);
+    } else if (auton_to_run == 4){
+        chassis.moveToPoint(0, -55, 1500, {.forwards = false}, false);
+        clamp_pneumatic.set_value(true);
+        chassis.moveToPoint(20, -20, 1300);
+        pros::delay(500);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        pros::delay(4000);
+        hook.brake();
+        intake.brake();
+        clamp_pneumatic.set_value(false);
+    } else if (auton_to_run == 5) {
+        chassis.moveToPoint(23, -55, 1500, {.forwards = false}, false);
+        clamp_pneumatic.set_value(true);
+        pros::delay(200);
+        chassis.moveToPoint(-7, -36, 1500);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        pros::delay(1200);
+        chassis.moveToPoint(0, -55, 1000, {}, false);
+        pros::delay(1200);
+        chassis.moveToPoint(0, -36, 300, {.forwards=false, .earlyExitRange=1});
+        chassis.moveToPoint(-8, -53, 1000, {}, false);
+        pros::delay(1200);
+        chassis.moveToPoint(10, -20, 1000, {.forwards=false, .earlyExitRange=2}, false);
+        diddy.set_value(true);
+        chassis.moveToPoint(-35, 20, 1200, {.maxSpeed=120, .minSpeed=70}, false);
+        chassis.turnToHeading(90, 1000, {.maxSpeed=70}, false);
+        diddy.set_value(false);
+        chassis.turnToHeading(-30, 500, {}, false);
+        right_motors.move_velocity(200);
+        left_motors.move_velocity(200);
+        pros::delay(500);
+        right_motors.brake();
+        left_motors.brake();
+        pros::delay(1200);
+        chassis.moveToPoint(-35, 0, 500, {.forwards=false,.minSpeed=70}, false);
+        clamp_pneumatic.set_value(false);
+    } else if (auton_to_run == 6) {
+        chassis.moveToPoint(23, -55, 1500, {.forwards = false}, false);
+        clamp_pneumatic.set_value(true);
+        pros::delay(200);
+        chassis.moveToPoint(-7, -36, 1500);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        pros::delay(1200);
+        chassis.moveToPoint(0, -55, 1000, {}, false);
+        pros::delay(1200);
+        chassis.moveToPoint(0, -36, 300, {.forwards=false, .earlyExitRange=1});
+        chassis.moveToPoint(-8, -53, 1000, {}, false);
+        pros::delay(1200);
+        chassis.moveToPoint(10, 30, 500, {.forwards=false, .earlyExitRange=2}, false);
+        diddy.set_value(true);
+        intake.move_velocity(0);
+        chassis.moveToPoint(250, 30, 2500, {.maxSpeed=120, .minSpeed=70}, false);
+        chassis.turnToHeading(180, 800, {.maxSpeed=70}, false);
+        diddy.set_value(false);
+        chassis.turnToHeading(70, 500, {}, false);
+        intake.move_velocity(400);
+        right_motors.move_velocity(200);
+        left_motors.move_velocity(200);
+        pros::delay(500);
+        right_motors.brake();
+        left_motors.brake();
+        pros::delay(1200);
+        right_motors.move_velocity(-400);
+        left_motors.move_velocity(-400);
+        pros::delay(200);
+        right_motors.brake();
+        left_motors.brake();
+        chassis.moveToPoint(250, 30, 1000, {.forwards=false,.minSpeed=70}, false);
+        clamp_pneumatic.set_value(false);
     }
 
     
 
-    else if (auton_to_run == 6){
+    else if (auton_to_run == 20){
         chassis.setPose(0, 0, 0);
         chassis.moveToPoint(0, -5, 500, {.forwards=false, .minSpeed=40}, false);
         clamp_pneumatic.set_value(true);
@@ -338,8 +381,11 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+
+
 void opcontrol() {
     // loop forever
+    controller.clear();
     if (auton_to_run == 2){
         clamp_pneumatic.set_value(true);
         clamp_extended = true;
@@ -350,7 +396,7 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) - rightX_offset;
 
         //print distance
-        pros::lcd::print(4, "Distance %f", distance_sensor.get_distance()); 
+        //pros::lcd::print(4, "Distance %f", distance_sensor.get_distance()); 
 
         //get distance value and get first 18 digits
         long long distance = distance_sensor.get_distance();
@@ -359,34 +405,34 @@ void opcontrol() {
         long long first18AsInt = std::stoll(first18Digits);
 
         // Compare and print on the LCD
-        if (first18AsInt < 40) {
+        if (first18AsInt < 36) {
             pros::lcd::print(5, "Here %lld", first18AsInt);
             ringDetected = true;
+            if (stopWhenRingDetected){
+                hookRev = true;
+                controller.clear();
+                stopWhenRingDetected = false;
+            }
         } else {
             pros::lcd::print(5, "There %lld", first18AsInt);
             ringDetected = false;
+            // auto start = std::chrono::high_resolution_clock::now();
         }
 
+        // auto current = std::chrono::high_resolution_clock::now();
+        // auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(current - start);
+        // if (elapsed.count() >= 2) {
+        //     ringDetected = false;
+        //     break;
+        // }
         // move the robot arcade
         chassis.arcade(leftY, rightX);
         
-        //if ring in front and ring detection toggled on, stop hook
-        if (ringDetected && stopWhenRingDetected) {
-            pros::delay(35);
-            intake.move_velocity(0);
-            pros::delay(90);
-            hook.move_velocity(-100);
-            pros::delay(500);
-            hook.move_velocity(0);
-            intaking = false;
-            reversed = true;
-            //stopWhenRingDetected = false;
-            controller.clear();
-        }
 
         //if r1 pressed, toggle if intaking or not
 		if (controller.get_digital_new_press(DIGITAL_R1)) {
             intaking = !intaking;
+            hookRev = false;
 		}
 
         //if r2 pressed, reverse intake
@@ -401,13 +447,19 @@ void opcontrol() {
 
         //if intaking, intake. if intaking and reversed, stop intake but reverse chain
         if (intaking) {
-            if (!reversed && !stopWhenRingDetected){
+            if (!reversed && !stopWhenRingDetected && !hookRev){
                 intake.move_velocity(400); // This is 100 because it's a 100rpm motor
                 hook.move_velocity(200);
+            } else if (hookRev) {
+                intake.move_velocity(400);
+                hook.move_velocity(-80);
+            } else if (ringDetected) {
+                intake.move_velocity(400);
+                hook.move_velocity(-100);
             } else if (stopWhenRingDetected){
                 intake.move_velocity(400);
                 hook.move_velocity(100);
-            } else {
+            } else if (reversed){
                 intake.move_velocity(-400);
                 hook.move_velocity(-80);
             }
@@ -439,10 +491,11 @@ void opcontrol() {
                 controller.print(1, 1, "Ring Detection");
             } else {
                 controller.clear();
+                hookRev = false;
             }
 		}
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-			//change lift 
+		// 	//change lift 
             lift_extended = !lift_extended;
             lift_pneumatic.set_value(lift_extended);
 		}
