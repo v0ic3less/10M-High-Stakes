@@ -345,7 +345,7 @@ void autonomous() {
         right_motors.brake();
         left_motors.brake();
         chassis.moveToPoint(250, 30, 1000, {.forwards=false,.minSpeed=70}, false);
-        clamp_pneumatic.set_value(false);
+        //clamp_pneumatic.set_value(false);
     }
 
     
