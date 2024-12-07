@@ -11,8 +11,8 @@
 
 pros::MotorGroup left_motors({LEFT_MOTOR_FRONT,LEFT_MOTOR_MIDDLE,LEFT_MOTOR_BACK}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 AND reversed
 pros::MotorGroup right_motors({RIGHT_MOTOR_FRONT,RIGHT_MOTOR_MIDDLE,RIGHT_MOTOR_BACK}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6
-pros::Motor intake (INTAKE_PORT);
-pros::Motor hook (HOOK_PORT);
+pros::Motor intake (INTAKE_PORT, pros::MotorGearset::green);
+pros::Motor hook (HOOK_PORT, pros::MotorGearset::green);
 
 pros::adi::DigitalOut intake_pneumatic_extend(INTAKE_EXTEND_PORT);  // Port A controls extension
 pros::adi::DigitalOut intake_pneumatic_retract(INTAKE_RETRACT_PORT); // Port B controls retraction
@@ -125,7 +125,8 @@ void initialize() {
     //auton_to_run = 1; //BLUE GOAL SIDE 3 RING
     //auton_to_run = 3; //BLUE RING SIDE 3 RING
     //auton_to_run = 4; //BLUE RING SIDE 2 RING
-    auton_to_run = 5; //BLUE RING SIDE 5 RING (into negative)
+    //auton_to_run = 5; //BLUE RING SIDE 5 RING (into negative)
+    auton_to_run = 8; //RED GOAL SIDE ? RING 
 
 
     //auton_to_run = 1; //RED RING SIDE 3 RING
@@ -219,7 +220,6 @@ void autonomous() {
         chassis.moveToPoint(0, 20, 1000);
         hook.brake();
         intake.brake();
-        clamp_pneumatic.set_value(false);
         intake_pneumatic_extend.set_value(false);
         intake_pneumatic_retract.set_value(true);
     } else if (auton_to_run == 2){
@@ -249,7 +249,6 @@ void autonomous() {
         right_motors.move_velocity(400);
         left_motors.move_velocity(400);
         pros::delay(1000);
-        clamp_pneumatic.set_value(false);
         right_motors.brake();
         left_motors.brake();
     } else if (auton_to_run == 3) {
@@ -271,7 +270,6 @@ void autonomous() {
         chassis.moveToPoint(0, 20, 1000);
         hook.brake();
         intake.brake();
-        clamp_pneumatic.set_value(false);
         intake_pneumatic_extend.set_value(false);
         intake_pneumatic_retract.set_value(true);
     } else if (auton_to_run == 4){
@@ -284,7 +282,6 @@ void autonomous() {
         pros::delay(4000);
         hook.brake();
         intake.brake();
-        clamp_pneumatic.set_value(false);
     } else if (auton_to_run == 5) {
         chassis.moveToPoint(23, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
@@ -311,41 +308,43 @@ void autonomous() {
         left_motors.brake();
         pros::delay(1200);
         chassis.moveToPoint(-35, 0, 500, {.forwards=false,.minSpeed=70}, false);
-        clamp_pneumatic.set_value(false);
-    } else if (auton_to_run == 6) {
-        chassis.moveToPoint(23, -55, 1500, {.forwards = false}, false);
+    } else if (auton_to_run == 7) {
+        chassis.moveToPoint(-23, -55, 1500, {.forwards = false}, false);
         clamp_pneumatic.set_value(true);
         pros::delay(200);
-        chassis.moveToPoint(-7, -36, 1500);
+        chassis.moveToPoint(7, -36, 1500);
         intake.move_velocity(400);
         hook.move_velocity(400);
         pros::delay(1200);
         chassis.moveToPoint(0, -55, 1000, {}, false);
         pros::delay(1200);
         chassis.moveToPoint(0, -36, 300, {.forwards=false, .earlyExitRange=1});
-        chassis.moveToPoint(-8, -53, 1000, {}, false);
+        chassis.moveToPoint(8, -53, 1000, {}, false);
         pros::delay(1200);
-        chassis.moveToPoint(10, 30, 500, {.forwards=false, .earlyExitRange=2}, false);
+        chassis.moveToPoint(-10, -20, 1000, {.forwards=false, .earlyExitRange=2}, false);
         diddy.set_value(true);
-        intake.move_velocity(0);
-        chassis.moveToPoint(250, 30, 2500, {.maxSpeed=120, .minSpeed=70}, false);
-        chassis.turnToHeading(180, 800, {.maxSpeed=70}, false);
+        chassis.moveToPoint(35, 20, 1200, {.maxSpeed=120, .minSpeed=70}, false);
+        chassis.turnToHeading(90, 1000, {.maxSpeed=70}, false);
         diddy.set_value(false);
-        chassis.turnToHeading(70, 500, {}, false);
-        intake.move_velocity(400);
+        chassis.turnToHeading(-30, 500, {}, false);
         right_motors.move_velocity(200);
         left_motors.move_velocity(200);
         pros::delay(500);
         right_motors.brake();
         left_motors.brake();
         pros::delay(1200);
-        right_motors.move_velocity(-400);
-        left_motors.move_velocity(-400);
+        chassis.moveToPoint(35, 0, 500, {.forwards=false,.minSpeed=70}, false);
+    } else if (auton_to_run == 8) {
+        chassis.moveToPoint(-23, -55, 1500, {.forwards = false}, false);
+        clamp_pneumatic.set_value(true);
         pros::delay(200);
-        right_motors.brake();
-        left_motors.brake();
-        chassis.moveToPoint(250, 30, 1000, {.forwards=false,.minSpeed=70}, false);
-        //clamp_pneumatic.set_value(false);
+        intake.move_velocity(400);
+        hook.move_velocity(400);
+        chassis.moveToPoint(7, -36, 1500, {}, true);
+        pros::delay(1400);
+        intake_pneumatic_extend.set_value(true);
+        intake_pneumatic_retract.set_value(false);
+        chassis.moveToPoint(-40, 0, 1000, {}, true);
     }
 
     
@@ -405,7 +404,7 @@ void opcontrol() {
         long long first18AsInt = std::stoll(first18Digits);
 
         // Compare and print on the LCD
-        if (first18AsInt < 36) {
+        if (first18AsInt < 37) {
             pros::lcd::print(5, "Here %lld", first18AsInt);
             ringDetected = true;
             if (stopWhenRingDetected){
