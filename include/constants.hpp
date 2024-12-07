@@ -12,6 +12,7 @@ const int INTAKE_PORT = 6;
 const int HOOK_PORT = 13;
 const int IMU_PORT = 2;
 const int DISTANCE_PORT = 9;
+const int OPTICAL_PORT = 5;
 
 // Pneumatic ports
 const char INTAKE_EXTEND_PORT = 'A';
