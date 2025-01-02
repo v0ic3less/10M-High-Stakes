@@ -126,12 +126,12 @@ void initialize() {
     pros::lcd::print(8, "Right X Offset: %d", rightX_offset);
 
     intake.set_brake_mode (pros::E_MOTOR_BRAKE_HOLD);
-    //teamcolor = 1; //blue
-    teamcolor = 2; //red
+    teamcolor = 1; //blue
+    //teamcolor = 2; //red
 
-    //auton_to_run = 5; //BLUE RING SIDE 5 RING
-    auton_to_run = 8; //RED GOAL SIDE 2 RING 
-    //auton_to_run = 7; //RED RING SIDE 5 RING
+    auton_to_run = 5; //BLUE RING SIDE 4 RING
+    //auton_to_run = 8; //RED GOAL SIDE 2 RING 
+    //auton_to_run = 7; //RED RING SIDE 4 RING
     //auton_to_run = 9; //BLUE GOAL SIDE 2 RING
 
     //auton_to_run = 2; //FULL FIELD SOLO WP (3 ring 2 mogo)
@@ -271,7 +271,7 @@ void autonomous() {
         pros::delay(1500);
         chassis.moveToPoint(-8, -53, 1000, {}, false);
         chassis.moveToPoint(0, -10, 1000, {.forwards=false, .earlyExitRange=1});
-        chassis.moveToPoint(70, -40, 1800, {}, false);
+        chassis.moveToPoint(50, -30, 1800, {}, false);
         hook.brake();
         intake.brake();
     } else if (auton_to_run == 7) {
@@ -289,7 +289,7 @@ void autonomous() {
         pros::delay(1500);
         chassis.moveToPoint(8, -53, 1000, {}, false);
         chassis.moveToPoint(0, -10, 1000, {.forwards=false, .earlyExitRange=1});
-        chassis.moveToPoint(-70, -40, 1800, {}, false);
+        chassis.moveToPoint(-50, -30, 1800, {}, false);
         hook.brake();
         intake.brake();
     } else if (auton_to_run == 8) {
